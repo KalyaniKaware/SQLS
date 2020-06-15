@@ -1,0 +1,63 @@
+Run the SQLS in Project Folder of MS-SQL
+
+/* SQL Server In-line Table Valued Function */
+
+CREATE FUNCTION GetAllProducts( )
+RETURNS TABLE
+AS
+RETURN
+(SELECT [id],[Salary]
+FROM [dbo].[Employee])
+
+
+/* SQL Server Multi-statement Table Valued Function */
+
+CREATE FUNCTION all_data3()
+RETURNS @all_d TABLE(
+	id int,
+	salary int)
+AS
+BEGIN
+	INSERT INTO @all_d
+	SELECT * FROM [Project].[dbo].[Employee] WHERE id < 2;
+
+	INSERT INTO @all_d
+	SELECT * FROM [Project].[dbo].[Employee] WHERE id > 2;
+
+	RETURN
+END
+
+SELECT * FROM all_data2();
+
+/* SQL Server Table variable*/ 
+
+DECLARE @salaries TABLE
+(id1 int)
+
+INSERT INTO @salaries
+SELECT id FROM [dbo].[Employee] WHERE id <3
+
+SELECT * FROM @salaries JOIN [dbo].[Employee] E ON E.id = id1
+
+/* Drop Function */
+
+CREATE FUNCTION udf_get_discount_amount (
+    @quantity INT,
+    @list_price DEC(10,2),
+    @discount DEC(4,2) 
+)
+RETURNS DEC(10,2) 
+WITH SCHEMABINDING
+AS 
+BEGIN
+    RETURN @quantity * @list_price * @discount
+END;
+
+CREATE VIEW udf_discs
+WITH SCHEMABINDING
+AS
+SELECT id, dbo.udf_get_discount_amount(1,2.0,3.0) as Calc FROM [dbo].[Employee];
+
+DROP VIEW udf_discs
+
+DROP FUNCTION udf_get_discount_amount
